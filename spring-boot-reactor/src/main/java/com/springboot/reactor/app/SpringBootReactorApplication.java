@@ -1,12 +1,12 @@
 package com.springboot.reactor.app;
 
-import javax.management.RuntimeErrorException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import com.springboot.reactor.app.models.Usuario;
 
 import reactor.core.publisher.Flux;
 
@@ -21,13 +21,19 @@ public class SpringBootReactorApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		Flux<String> nombres = Flux.just("Pedro","juan", "luis","maria").doOnNext(nombre ->{
-			if (nombre.isEmpty()) {
+		Flux<Usuario> nombres = Flux.just("Pedro","juan", "luis","maria")
+				.map(nombre -> new Usuario(nombre.toUpperCase(), null))
+				.doOnNext(usuario ->{
+			if (usuario.getNombres().isEmpty()) {
 				throw new RuntimeException("El nombre no puede ser vacio");
 			}
-		});
+			LOGGER.info(usuario.toString());
+		}).map(usuario -> { 
+			String nuevoNombre = usuario.getNombres().toLowerCase();		
+			usuario.setNombres(nuevoNombre);
+			return usuario;});
 		
-		nombres.subscribe(e -> LOGGER.info(e), error -> LOGGER.error(error.getMessage()), new Runnable() {
+		nombres.subscribe(e -> LOGGER.info(e.toString()), error -> LOGGER.error(error.getMessage()), new Runnable() {
 			
 			@Override
 			public void run() {
