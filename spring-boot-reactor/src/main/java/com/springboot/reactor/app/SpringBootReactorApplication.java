@@ -21,13 +21,19 @@ public class SpringBootReactorApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		Flux<String> nombres = Flux.just("Pedro","juan", "","maria").doOnNext(nombre ->{
+		Flux<String> nombres = Flux.just("Pedro","juan", "luis","maria").doOnNext(nombre ->{
 			if (nombre.isEmpty()) {
 				throw new RuntimeException("El nombre no puede ser vacio");
 			}
 		});
 		
-		nombres.subscribe(e -> LOGGER.info(e), error -> LOGGER.error(error.getMessage()));
+		nombres.subscribe(e -> LOGGER.info(e), error -> LOGGER.error(error.getMessage()), new Runnable() {
+			
+			@Override
+			public void run() {
+				LOGGER.info("Ha finalizado el flujo de datos con exito");				
+			}
+		});
 		
 	}
 
