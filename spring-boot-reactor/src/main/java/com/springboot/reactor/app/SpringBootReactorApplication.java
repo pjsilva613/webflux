@@ -33,11 +33,26 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploZipWithRangos();
+		ejemploDelayElements();
 	}
 	
 	
 
+	public void ejemploDelayElements() {
+		Flux<Integer> rango = Flux.range(1, 12).delayElements(Duration.ofSeconds(1))
+				.doOnNext(i -> LOGGER.info(i.toString()));
+
+		rango.blockLast();
+	}
+
+	public void ejemploInterval() {
+		Flux<Integer> rango = Flux.range(1, 12);
+		Flux<Long> retraso = Flux.interval(Duration.ofSeconds(1));
+
+		rango.zipWith(retraso, (ra, re) -> ra).doOnNext(i -> LOGGER.info(i.toString())).blockLast();
+	}
+
+	
 	public void ejemploZipWithRangos() {
 		Flux<Integer> rangos = Flux.range(0, 4);
 		Flux.just(1, 2, 3, 4).map(i -> (i * 2))
