@@ -1,8 +1,14 @@
 package com.springboot.reactor.app;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -27,9 +33,38 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploUsuarioComentariosFlatMap();
+		ejemploZipWithRangos();
 	}
 	
+	
+
+	public void ejemploZipWithRangos() {
+		Flux<Integer> rangos = Flux.range(0, 4);
+		Flux.just(1, 2, 3, 4).map(i -> (i * 2))
+				.zipWith(rangos, (uno, dos) -> String.format("Primer Flux: %d, Segundo Flux: %d", uno, dos))
+				.subscribe(texto -> LOGGER.info(texto));
+	}
+	
+
+	public void ejemploUsuarioComentariosZipWithForma2() {
+		Mono<Usuario> usuarioMono = Mono.fromCallable(() -> new Usuario("John", "Doe"));
+
+		Mono<Comentarios> comentariosUsuarioMono = Mono.fromCallable(() -> {
+			Comentarios comentarios = new Comentarios();
+			comentarios.addComentario("Hola pepe, qué tal!");
+			comentarios.addComentario("Mañana voy a la playa!");
+			comentarios.addComentario("Estoy tomando el curso de spring con reactor");
+			return comentarios;
+		});
+
+		Mono<UsuarioComentarios> usuarioConComentarios = usuarioMono.zipWith(comentariosUsuarioMono).map(tuple -> {
+			Usuario u = tuple.getT1();
+			Comentarios c = tuple.getT2();
+			return new UsuarioComentarios(u, c);
+		});
+
+		usuarioConComentarios.subscribe(uc -> LOGGER.info(uc.toString()));
+	}
 
 	public void ejemploUsuarioComentariosZipWith() {
 		Mono<Usuario> usuarioMono = Mono.fromCallable(() -> new Usuario("John", "Doe"));
