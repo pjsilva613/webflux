@@ -1,14 +1,8 @@
 package com.springboot.reactor.app;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -36,6 +30,23 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 		ejemploUsuarioComentariosFlatMap();
 	}
 	
+
+	public void ejemploUsuarioComentariosZipWith() {
+		Mono<Usuario> usuarioMono = Mono.fromCallable(() -> new Usuario("John", "Doe"));
+
+		Mono<Comentarios> comentariosUsuarioMono = Mono.fromCallable(() -> {
+			Comentarios comentarios = new Comentarios();
+			comentarios.addComentario("Hola pepe, qué tal!");
+			comentarios.addComentario("Mañana voy a la playa!");
+			comentarios.addComentario("Estoy tomando el curso de spring con reactor");
+			return comentarios;
+		});
+
+		Mono<UsuarioComentarios> usuarioConComentarios = usuarioMono.zipWith(comentariosUsuarioMono,
+				(usuario, comentariosUsuario) -> new UsuarioComentarios(usuario, comentariosUsuario));
+
+		usuarioConComentarios.subscribe(uc -> LOGGER.info(uc.toString()));
+	}
 
 	public void ejemploUsuarioComentariosFlatMap() {
 		Mono<Usuario> usuarioMono = Mono.fromCallable(() -> new Usuario("John", "Doe"));
