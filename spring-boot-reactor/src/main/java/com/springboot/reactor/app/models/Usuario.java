@@ -2,29 +2,29 @@ package com.springboot.reactor.app.models;
 
 public class Usuario {
 
-	private String nombres;
-	private String apellidos;	
-	
-	public Usuario(String nombres, String apellidos) {
-		this.nombres = nombres;
-		this.apellidos = apellidos;
-	}
-	
-	public String getNombres() {
-		return nombres;
-	}
-	public void setNombres(String nombres) {
-		this.nombres = nombres;
-	}
-	public String getApellidos() {
-		return apellidos;
-	}
-	public void setApellidos(String apellidos) {
-		this.apellidos = apellidos;
-	}
+	private String nombre;
+	private String apellido;
 
+	public Usuario(String nombre, String apellido) {
+		this.nombre = nombre;
+		this.apellido = apellido;
+	}
+	public String getNombre() {
+		return nombre;
+	}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+	public String getApellido() {
+		return apellido;
+	}
+	public void setApellido(String apellido) {
+		this.apellido = apellido;
+	}
 	@Override
 	public String toString() {
-		return "Usuario [nombres=" + nombres + ", apellidos=" + apellidos + "]";
+		return "Usuario [nombre=" + nombre + ", apellido=" + apellido + "]";
 	}
+	
+	
 }
