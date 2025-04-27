@@ -33,8 +33,26 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploToString();
+		ejemploUsuarioComentariosFlatMap();
 	}
+	
+
+	public void ejemploUsuarioComentariosFlatMap() {
+		Mono<Usuario> usuarioMono = Mono.fromCallable(() -> new Usuario("John", "Doe"));
+
+		Mono<Comentarios> comentariosUsuarioMono = Mono.fromCallable(() -> {
+			Comentarios comentarios = new Comentarios();
+			comentarios.addComentario("Hola pepe, qué tal!");
+			comentarios.addComentario("Mañana voy a la playa!");
+			comentarios.addComentario("Estoy tomando el curso de spring con reactor");
+			return comentarios;
+		});
+
+		Mono<UsuarioComentarios> usuarioConComentarios = usuarioMono
+				.flatMap(u -> comentariosUsuarioMono.map(c -> new UsuarioComentarios(u, c)));
+		usuarioConComentarios.subscribe(uc -> LOGGER.info(uc.toString()));
+	}
+	
 	public void ejemploCollectList() throws Exception {
 
 		List<Usuario> usuariosList = new ArrayList<>();
