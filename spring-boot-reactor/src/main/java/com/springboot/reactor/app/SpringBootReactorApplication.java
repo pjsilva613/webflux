@@ -33,9 +33,49 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploIntervalDesdeCreate();
+		ejemploContraPresion();
 	}
-	
+
+	public void ejemploContraPresion() {
+
+		Flux.range(1, 10).log()
+				// .limitRate(5)
+				.subscribe(new Subscriber<Integer>() {
+
+					private Subscription s;
+
+					private Integer limite = 5;
+					private Integer consumido = 0;
+
+					@Override
+					public void onSubscribe(Subscription s) {
+						this.s = s;
+						s.request(limite);
+					}
+
+					@Override
+					public void onNext(Integer t) {
+						LOGGER.info(t.toString());
+						consumido++;
+						if (consumido == limite) {
+							consumido = 0;
+							s.request(limite);
+						}
+					}
+
+					@Override
+					public void onError(Throwable t) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void onComplete() {
+						// TODO Auto-generated method stub
+
+					}
+				});
+	}
 
 	public void ejemploIntervalDesdeCreate() {
 		Flux.create(emitter -> {
@@ -62,7 +102,7 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 		}).subscribe(next -> LOGGER.info(next.toString()), error -> LOGGER.error(error.getMessage()),
 				() -> LOGGER.info("Hemos terminado"));
 	}
-	
+
 	public void ejemploIntervalInfinito() throws InterruptedException {
 
 		CountDownLatch latch = new CountDownLatch(1);
@@ -91,14 +131,12 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 		rango.zipWith(retraso, (ra, re) -> ra).doOnNext(i -> LOGGER.info(i.toString())).blockLast();
 	}
 
-	
 	public void ejemploZipWithRangos() {
 		Flux<Integer> rangos = Flux.range(0, 4);
 		Flux.just(1, 2, 3, 4).map(i -> (i * 2))
 				.zipWith(rangos, (uno, dos) -> String.format("Primer Flux: %d, Segundo Flux: %d", uno, dos))
 				.subscribe(texto -> LOGGER.info(texto));
 	}
-	
 
 	public void ejemploUsuarioComentariosZipWithForma2() {
 		Mono<Usuario> usuarioMono = Mono.fromCallable(() -> new Usuario("John", "Doe"));
@@ -152,7 +190,7 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 				.flatMap(u -> comentariosUsuarioMono.map(c -> new UsuarioComentarios(u, c)));
 		usuarioConComentarios.subscribe(uc -> LOGGER.info(uc.toString()));
 	}
-	
+
 	public void ejemploCollectList() throws Exception {
 
 		List<Usuario> usuariosList = new ArrayList<>();
@@ -168,7 +206,7 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 			lista.forEach(item -> LOGGER.info(item.toString()));
 		});
 	}
-	
+
 	public void ejemploToString() throws Exception {
 
 		List<Usuario> usuariosList = new ArrayList<>();
@@ -192,7 +230,7 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 					return nombre.toLowerCase();
 				}).subscribe(u -> LOGGER.info(u.toString()));
 	}
-	
+
 	public void ejemploFlatMap() throws Exception {
 
 		List<String> usuariosList = new ArrayList<>();
