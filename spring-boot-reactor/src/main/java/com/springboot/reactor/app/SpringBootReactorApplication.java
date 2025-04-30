@@ -33,7 +33,34 @@ public class SpringBootReactorApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploIntervalInfinito();
+		ejemploIntervalDesdeCreate();
+	}
+	
+
+	public void ejemploIntervalDesdeCreate() {
+		Flux.create(emitter -> {
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+
+				private Integer contador = 0;
+
+				@Override
+				public void run() {
+					emitter.next(++contador);
+					if (contador == 10) {
+						timer.cancel();
+						emitter.complete();
+					}
+
+					if (contador == 5) {
+						timer.cancel();
+						emitter.error(new InterruptedException("Error, se ha detenido el flux en 5!"));
+					}
+
+				}
+			}, 1000, 1000);
+		}).subscribe(next -> LOGGER.info(next.toString()), error -> LOGGER.error(error.getMessage()),
+				() -> LOGGER.info("Hemos terminado"));
 	}
 	
 	public void ejemploIntervalInfinito() throws InterruptedException {
